@@ -1,5 +1,3 @@
-// script.js
-
 const wheelCanvas = document.getElementById('wheelCanvas');
 const ctx = wheelCanvas.getContext('2d');
 const spinButton = document.getElementById('spinButton');
@@ -9,6 +7,7 @@ const puzzleElement = document.getElementById('puzzle');
 const genreElement = document.getElementById('genre');
 const commentaryText = document.getElementById('commentaryText');
 const timeLeftDisplay = document.getElementById('timeLeft');
+
 const wheelValues = [100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1100, 1150, 1200, 1250, 1300, 1350, 1400, 1450, 1500, 'BANKRUPT', 'BANKRUPT', 10000, 1000000];
 let currentPuzzle = '';
 let puzzleDisplay = '';
@@ -21,7 +20,7 @@ const puzzles = [
     { puzzle: 'NEW YORK CITY', genre: 'Place' },
     { puzzle: 'PIANO LESSON', genre: 'Event' },
     { puzzle: 'MARTIN LUTHER KING', genre: 'Person' },
-    { puzzle: 'Eiffel Tower', genre: 'Building' },
+    { puzzle: 'EIFFEL TOWER', genre: 'Building' },
     { puzzle: 'CHESS GAME', genre: 'Game' }
 ];
 
@@ -55,37 +54,42 @@ function drawWheel() {
 
 function spinWheel() {
     spinButton.disabled = true;
-    const spinAngle = Math.random() * 2 * Math.PI;
+    letterGuessInput.disabled = true;
+    guessButton.disabled = true;
+
+    const wheelRadius = wheelCanvas.width / 2;
+    const angleStep = (2 * Math.PI) / wheelValues.length;
     const spinDuration = 3000;
     const startTime = Date.now();
+    const spinAngle = Math.random() * 2 * Math.PI;
+    const finalAngle = spinAngle + (Math.random() * 4 + 4) * 2 * Math.PI; // 4 to 8 full rotations
 
     const spin = () => {
         const elapsedTime = Date.now() - startTime;
         const progress = Math.min(elapsedTime / spinDuration, 1);
-        const angle = spinAngle * progress;
+        const currentAngle = spinAngle + (finalAngle - spinAngle) * progress;
 
         ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
-        ctx.translate(wheelCanvas.width / 2, wheelCanvas.height / 2);
-        ctx.rotate(angle);
-        ctx.translate(-wheelCanvas.width / 2, -wheelCanvas.height / 2);
+        ctx.translate(wheelRadius, wheelRadius);
+        ctx.rotate(currentAngle);
+        ctx.translate(-wheelRadius, -wheelRadius);
         drawWheel();
         ctx.setTransform(1, 0, 0, 1, 0, 0);
 
         if (progress < 1) {
             requestAnimationFrame(spin);
         } else {
-            endSpin();
+            endSpin(finalAngle % (2 * Math.PI));
         }
     };
 
     spin();
 }
 
-function endSpin() {
+function endSpin(finalAngle) {
     const wheelRadius = wheelCanvas.width / 2;
     const angleStep = (2 * Math.PI) / wheelValues.length;
-    const spinAngle = Math.random() * 2 * Math.PI;
-    const segmentIndex = Math.floor((spinAngle + Math.PI / 2) / angleStep) % wheelValues.length;
+    const segmentIndex = Math.floor((finalAngle + Math.PI / 2) / angleStep) % wheelValues.length;
     const result = wheelValues[segmentIndex];
 
     commentaryText.textContent = `You landed on: ${result}`;
