@@ -1,54 +1,43 @@
+/* styles.css */
+
 body {
     font-family: Arial, sans-serif;
-    background-color: #4a90e2;
-    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+#control-screen {
     text-align: center;
 }
 
-.container {
-    width: 80%;
-    margin: 0 auto;
-    padding-top: 20px;
+#letter-buttons {
+    margin-bottom: 20px;
 }
 
-#wheelCanvas {
-    border: 2px solid #fff;
+#letter-buttons button {
+    font-size: 18px;
+    padding: 10px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+#phrase-display {
     margin-bottom: 20px;
+    font-size: 24px;
+    letter-spacing: 5px;
 }
 
 #controls {
-    margin-bottom: 20px;
+    margin-top: 20px;
 }
 
-button {
-    padding: 10px 20px;
-    margin: 5px;
-    border: none;
-    background-color: #007bff;
-    color: #fff;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-button:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-}
-
-#timer, #puzzle, #genre, #commentary {
-    margin: 10px 0;
-}
-
-input[type="text"] {
+#phrase-input {
     padding: 10px;
-    font-size: 16px;
-    border: 2px solid #fff;
-    border-radius: 5px;
-    margin: 5px;
-}
-
-input:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
+    font-size: 18px;
+    width: 250px;
+    margin-bottom: 10px;
 }
