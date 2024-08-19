@@ -5,130 +5,117 @@ const ctx = wheelCanvas.getContext('2d');
 const spinButton = document.getElementById('spinButton');
 const guessButton = document.getElementById('guessButton');
 const letterGuessInput = document.getElementById('letterGuess');
-const commentaryText = document.getElementById('commentaryText');
-const timeLeftDisplay = document.getElementById('timeLeft');
 const puzzleElement = document.getElementById('puzzle');
 const genreElement = document.getElementById('genre');
-
-const wheelValues = [
-    100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 
-    1100, 1150, 1200, 1250, 1300, 1350, 1400, 1450, 1500, "Bankrupt", "10,000", "1,000,000", 
-    "Bankrupt", "1,000,000", "Bankrupt"
-];
-
-const puzzles = [
-    { genre: "Phrase", puzzle: "A BLESSING IN DISGUISE" },
-    { genre: "Sentence", puzzle: "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG" },
-    { genre: "Person", puzzle: "ALBERT EINSTEIN" },
-    { genre: "Building", puzzle: "EMPIRE STATE BUILDING" },
-    { genre: "Gambling", puzzle: "WHAT HAPPENS IN VEGAS STAYS IN VEGAS" },
-    { genre: "Game", puzzle: "WHEEL OF FORTUNE" },
-    { genre: "Movie", puzzle: "THE GODFATHER" },
-    { genre: "Book", puzzle: "TO KILL A MOCKINGBIRD" },
-    { genre: "TV Show", puzzle: "GAME OF THRONES" },
-    { genre: "Country", puzzle: "AUSTRALIA" },
-    { genre: "Animal", puzzle: "ELEPHANT" },
-    { genre: "City", puzzle: "NEW YORK CITY" },
-    { genre: "Color", puzzle: "ROYAL BLUE" },
-    { genre: "Sport", puzzle: "BASKETBALL" },
-    { genre: "Song", puzzle: "BOHEMIAN RHAPSODY" }
-];
-
-let currentPuzzle = "";
-let currentGenre = "";
-let puzzleDisplay = "";
+const commentaryText = document.getElementById('commentaryText');
+const timeLeftDisplay = document.getElementById('timeLeft');
+const wheelValues = [100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1100, 1150, 1200, 1250, 1300, 1350, 1400, 1450, 1500, 'BANKRUPT', 'BANKRUPT', 10000, 1000000];
+let currentPuzzle = '';
+let puzzleDisplay = '';
 let prizeMoney = 0;
 let timer;
 let timeLeft = 10;
-let wheelAngle = 0;
+let genre = '';
+const puzzles = [
+    { puzzle: 'HELLO WORLD', genre: 'Phrase' },
+    { puzzle: 'NEW YORK CITY', genre: 'Place' },
+    { puzzle: 'PIANO LESSON', genre: 'Event' },
+    { puzzle: 'MARTIN LUTHER KING', genre: 'Person' },
+    { puzzle: 'Eiffel Tower', genre: 'Building' },
+    { puzzle: 'CHESS GAME', genre: 'Game' }
+];
 
 function drawWheel() {
-    const radius = wheelCanvas.width / 2;
-    const arcSize = (2 * Math.PI) / wheelValues.length;
+    const wheelRadius = wheelCanvas.width / 2;
+    const angleStep = (2 * Math.PI) / wheelValues.length;
 
-    wheelValues.forEach((value, index) => {
-        const angle = index * arcSize;
+    ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+
+    for (let i = 0; i < wheelValues.length; i++) {
+        const startAngle = i * angleStep;
+        const endAngle = (i + 1) * angleStep;
+
         ctx.beginPath();
-        ctx.arc(radius, radius, radius, angle, angle + arcSize);
-        ctx.lineTo(radius, radius);
-        ctx.fillStyle = index % 2 === 0 ? '#ffcc00' : '#ff6600';
+        ctx.arc(wheelRadius, wheelRadius, wheelRadius, startAngle, endAngle);
+        ctx.lineTo(wheelRadius, wheelRadius);
+        ctx.fillStyle = i % 2 === 0 ? '#ff9999' : '#66b3ff';
         ctx.fill();
         ctx.stroke();
 
         ctx.save();
-        ctx.translate(radius, radius);
-        ctx.rotate(angle + arcSize / 2);
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#000";
-        ctx.font = "bold 14px Arial";
-        ctx.fillText(value, radius * 0.65, 5);
+        ctx.translate(wheelRadius, wheelRadius);
+        ctx.rotate(startAngle + angleStep / 2);
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 14px Arial';
+        ctx.fillText(wheelValues[i], wheelRadius - 10, 10);
         ctx.restore();
-    });
+    }
 }
 
 function spinWheel() {
     spinButton.disabled = true;
-    letterGuessInput.disabled = true;
-    guessButton.disabled = true;
-    commentaryText.textContent = "Spinning...";
-    wheelAngle = 0;
+    const spinAngle = Math.random() * 2 * Math.PI;
+    const spinDuration = 3000;
+    const startTime = Date.now();
 
-    const randomSpin = Math.random() * 360 + 360 * 3; // Spin at least 3 full rotations
-    const finalAngle = (randomSpin % 360) * (Math.PI / 180);
+    const spin = () => {
+        const elapsedTime = Date.now() - startTime;
+        const progress = Math.min(elapsedTime / spinDuration, 1);
+        const angle = spinAngle * progress;
 
-    const totalTime = 3000; // Spin duration in ms
-    let startTime = null;
-
-    function animateSpin(timestamp) {
-        if (!startTime) startTime = timestamp;
-        const elapsed = timestamp - startTime;
-        wheelAngle = (elapsed / totalTime) * 360;
         ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
-        drawWheel();
-        ctx.save();
         ctx.translate(wheelCanvas.width / 2, wheelCanvas.height / 2);
-        ctx.rotate(wheelAngle * (Math.PI / 180));
-        ctx.restore();
-        if (elapsed < totalTime) {
-            requestAnimationFrame(animateSpin);
+        ctx.rotate(angle);
+        ctx.translate(-wheelCanvas.width / 2, -wheelCanvas.height / 2);
+        drawWheel();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+        if (progress < 1) {
+            requestAnimationFrame(spin);
         } else {
-            endSpin(finalAngle);
+            endSpin();
         }
-    }
+    };
 
-    requestAnimationFrame(animateSpin);
+    spin();
 }
 
-function endSpin(finalAngle) {
-    wheelAngle = finalAngle;
-    const sectionAngle = 360 / wheelValues.length;
-    const index = Math.floor((finalAngle % 360) / sectionAngle);
-    const result = wheelValues[index];
+function endSpin() {
+    const wheelRadius = wheelCanvas.width / 2;
+    const angleStep = (2 * Math.PI) / wheelValues.length;
+    const spinAngle = Math.random() * 2 * Math.PI;
+    const segmentIndex = Math.floor((spinAngle + Math.PI / 2) / angleStep) % wheelValues.length;
+    const result = wheelValues[segmentIndex];
+
     commentaryText.textContent = `You landed on: ${result}`;
-    if (result === "Bankrupt") {
-        commentaryText.textContent = "You landed on Bankrupt! All your prize money is lost.";
+    if (result === 'BANKRUPT') {
         prizeMoney = 0;
-        resetGame();
+        commentaryText.textContent += " You've hit BANKRUPT!";
     } else {
-        revealLetters(result);
+        prizeMoney = result;
+        commentaryText.textContent += ` Your prize money is now $${prizeMoney}.`;
+        choosePuzzle();
     }
+    startTimer();
 }
 
-function revealLetters(result) {
-    const puzzle = puzzles[Math.floor(Math.random() * puzzles.length)];
-    currentPuzzle = puzzle.puzzle;
-    currentGenre = puzzle.genre;
-
-    genreElement.textContent = `Genre: ${currentGenre}`;
-
-    // Show half of the puzzle word
-    const halfLength = Math.floor(currentPuzzle.length / 2);
-    puzzleDisplay = currentPuzzle.slice(0, halfLength).replace(/[A-Z]/g, '_') + currentPuzzle.slice(halfLength);
+function choosePuzzle() {
+    const randomIndex = Math.floor(Math.random() * puzzles.length);
+    const puzzle = puzzles[randomIndex];
+    currentPuzzle = puzzle.puzzle.toUpperCase();
+    genre = puzzle.genre;
+    puzzleDisplay = currentPuzzle.replace(/./g, '_');
     puzzleElement.textContent = puzzleDisplay;
-
+    genreElement.textContent = genre;
     letterGuessInput.disabled = false;
     guessButton.disabled = false;
-    keyboardContainer.style.display = "block";
+    commentaryText.textContent = "Guess a letter or word!";
+}
+
+function startTimer() {
+    timeLeft = 10;
+    timeLeftDisplay.textContent = timeLeft;
 
     timer = setInterval(() => {
         timeLeft--;
@@ -146,7 +133,7 @@ function guessLetter() {
     letterGuessInput.value = '';
     letterGuessInput.disabled = true;
     guessButton.disabled = true;
-    
+
     if (guess.length === 1 && /[A-Z]/.test(guess)) {
         let updatedPuzzleDisplay = '';
         let correctGuess = false;
@@ -161,7 +148,6 @@ function guessLetter() {
         puzzleDisplay = updatedPuzzleDisplay;
         puzzleElement.textContent = puzzleDisplay;
         if (correctGuess) {
-            prizeMoney += wheelValues[0]; // Update prize money (this needs to be based on the wheel value)
             commentaryText.textContent = `Correct guess! Prize money: $${prizeMoney}`;
         } else {
             commentaryText.textContent = "Incorrect guess. Try again!";
@@ -180,17 +166,14 @@ function guessWord() {
     letterGuessInput.value = '';
     letterGuessInput.disabled = true;
     guessButton.disabled = true;
-    
-    if (guess.length > 0) {
-        if (guess === currentPuzzle) {
-            prizeMoney += wheelValues[0]; // Update prize money (this needs to be based on the wheel value)
-            commentaryText.textContent = `Correct! You guessed the puzzle. Prize money: $${prizeMoney}`;
-            resetGame();
-        } else {
-            commentaryText.textContent = "Incorrect guess. Try again!";
-        }
+
+    if (guess === currentPuzzle) {
+        puzzleDisplay = currentPuzzle;
+        puzzleElement.textContent = puzzleDisplay;
+        commentaryText.textContent = `Congratulations! You've guessed the puzzle. Your prize is $${prizeMoney}.`;
+        resetGame();
     } else {
-        commentaryText.textContent = "Invalid input. Please enter a valid word.";
+        commentaryText.textContent = "Incorrect guess. Try again!";
     }
 
     // Enable guess again
@@ -202,14 +185,10 @@ function resetGame() {
     spinButton.disabled = false;
     letterGuessInput.disabled = true;
     guessButton.disabled = true;
-    letterGuessInput.value = '';
-    timeLeft = 10;
-    timeLeftDisplay.textContent = timeLeft;
-    clearInterval(timer);
 }
 
-document.getElementById('spinButton').addEventListener('click', spinWheel);
-document.getElementById('guessButton').addEventListener('click', () => {
+spinButton.addEventListener('click', spinWheel);
+guessButton.addEventListener('click', () => {
     if (letterGuessInput.value.length === 1) {
         guessLetter();
     } else {
