@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wheel of Fortune</title>
+    <title>Control Screen</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Wheel of Fortune</h1>
-        <canvas id="wheelCanvas" width="500" height="500"></canvas>
+    <div id="control-screen">
+        <div id="letter-buttons">
+            <!-- Buttons for letters A-Z -->
+        </div>
+        <div id="phrase-display">
+            <p id="current-phrase">Selected Phrase: </p>
+        </div>
         <div id="controls">
-            <button id="spinButton">Spin the Wheel</button>
-            <input type="text" id="letterGuess" maxlength="1" placeholder="Type a letter or word">
-            <button id="guessButton" disabled>Submit Guess</button>
-            <div id="timer">Time Left: <span id="timeLeft">10</span> seconds</div>
-            <div id="puzzle">Puzzle: <span id="puzzle"></span></div>
-            <div id="genre">Genre: <span id="genre"></span></div>
-            <div id="commentary">Commentary: <span id="commentaryText">Spin the wheel to start!</span></div>
+            <button id="add-phrase">Add Phrase</button>
+            <button id="clear-phrase">Clear Phrase</button>
+            <input type="text" id="phrase-input" placeholder="Enter new phrase" />
         </div>
     </div>
     <script src="script.js"></script>
