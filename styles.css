@@ -1,57 +1,67 @@
-/* styles.css */
-
 body {
     font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    background-color: #f0f0f0;
-}
-
-.container {
+    background-color: #4a90e2;
+    color: #fff;
     text-align: center;
 }
 
-.wheel-container {
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding-top: 20px;
+}
+
+#wheelCanvas {
+    border: 2px solid #fff;
     margin-bottom: 20px;
 }
 
-canvas {
-    border: 1px solid #000;
+#controls {
+    margin-bottom: 20px;
 }
 
 button {
-    margin: 5px;
     padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
     font-size: 16px;
     cursor: pointer;
+    border-radius: 5px;
+}
+
+button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+#timer, #puzzle, #genre, #commentary {
+    margin: 10px 0;
 }
 
 .keyboard-container {
-    margin-top: 20px;
+    display: none;
 }
 
-#keyboard {
-    display: inline-block;
+.keyboard {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 5px;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
-.key {
-    margin: 3px;
-    padding: 10px;
-    font-size: 16px;
+.keyboard button {
+    padding: 15px;
+    font-size: 18px;
+    background-color: #fff;
+    color: #000;
+    border: none;
     cursor: pointer;
+    border-radius: 5px;
 }
 
-.guess-section {
-    margin-top: 20px;
-}
-
-.timer {
-    margin-top: 20px;
-}
-
-.commentary {
-    margin-top: 20px;
+.keyboard button:hover {
+    background-color: #ddd;
 }
