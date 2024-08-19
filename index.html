@@ -9,64 +9,17 @@
 <body>
     <div class="container">
         <h1>Wheel of Fortune</h1>
-        <div class="wheel-container">
-            <canvas id="wheelCanvas" width="400" height="400"></canvas>
-        </div>
-        <button id="spinButton">Spin the Wheel</button>
-
-        <div class="puzzle-info">
-            <p id="genre">Genre: </p>
-            <p id="puzzle"></p>
-        </div>
-
-        <div class="keyboard-container" style="display: none;">
-            <div id="keyboard">
-                <!-- QWERTY Keyboard Layout -->
-                <button class="key">Q</button>
-                <button class="key">W</button>
-                <button class="key">E</button>
-                <button class="key">R</button>
-                <button class="key">T</button>
-                <button class="key">Y</button>
-                <button class="key">U</button>
-                <button class="key">I</button>
-                <button class="key">O</button>
-                <button class="key">P</button>
-                <br>
-                <button class="key">A</button>
-                <button class="key">S</button>
-                <button class="key">D</button>
-                <button class="key">F</button>
-                <button class="key">G</button>
-                <button class="key">H</button>
-                <button class="key">J</button>
-                <button class="key">K</button>
-                <button class="key">L</button>
-                <br>
-                <button class="key">Z</button>
-                <button class="key">X</button>
-                <button class="key">C</button>
-                <button class="key">V</button>
-                <button class="key">B</button>
-                <button class="key">N</button>
-                <button class="key">M</button>
-            </div>
-        </div>
-
-        <div class="guess-section" style="display: none;">
-            <input type="text" id="letterGuess" maxlength="1" placeholder="Guess a letter" disabled>
+        <canvas id="wheelCanvas" width="500" height="500"></canvas>
+        <div id="controls">
+            <button id="spinButton">Spin the Wheel</button>
             <button id="guessButton" disabled>Guess</button>
-        </div>
-
-        <div class="timer">
-            <p>Time left: <span id="timeLeft">10</span> seconds</p>
-        </div>
-
-        <div class="commentary">
-            <p id="commentaryText">Spin the wheel to start!</p>
+            <input type="text" id="letterGuess" maxlength="1" placeholder="Letter or Word" disabled>
+            <div id="timer">Time Left: <span id="timeLeft">10</span> seconds</div>
+            <div id="puzzle">Puzzle: <span id="puzzle"></span></div>
+            <div id="genre">Genre: <span id="genre"></span></div>
+            <div id="commentary">Commentary: <span id="commentaryText">Spin the wheel to start!</span></div>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
