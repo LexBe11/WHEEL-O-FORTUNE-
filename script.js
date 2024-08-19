@@ -9,8 +9,6 @@ const commentaryText = document.getElementById('commentaryText');
 const timeLeftDisplay = document.getElementById('timeLeft');
 const puzzleElement = document.getElementById('puzzle');
 const genreElement = document.getElementById('genre');
-const keyboardContainer = document.querySelector('.keyboard-container');
-const keyboard = document.getElementById('keyboard');
 
 const wheelValues = [
     100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 
@@ -39,13 +37,15 @@ const puzzles = [
 let currentPuzzle = "";
 let currentGenre = "";
 let puzzleDisplay = "";
+let prizeMoney = 0;
 let timer;
 let timeLeft = 10;
+let wheelAngle = 0;
 
 function drawWheel() {
     const radius = wheelCanvas.width / 2;
     const arcSize = (2 * Math.PI) / wheelValues.length;
-    
+
     wheelValues.forEach((value, index) => {
         const angle = index * arcSize;
         ctx.beginPath();
@@ -54,7 +54,7 @@ function drawWheel() {
         ctx.fillStyle = index % 2 === 0 ? '#ffcc00' : '#ff6600';
         ctx.fill();
         ctx.stroke();
-        
+
         ctx.save();
         ctx.translate(radius, radius);
         ctx.rotate(angle + arcSize / 2);
@@ -71,6 +71,7 @@ function spinWheel() {
     letterGuessInput.disabled = true;
     guessButton.disabled = true;
     commentaryText.textContent = "Spinning...";
+    wheelAngle = 0;
 
     const randomSpin = Math.random() * 360 + 360 * 3; // Spin at least 3 full rotations
     const finalAngle = (randomSpin % 360) * (Math.PI / 180);
@@ -78,37 +79,39 @@ function spinWheel() {
     const totalTime = 3000; // Spin duration in ms
     let startTime = null;
 
-    function animateSpin(currentTime) {
-        if (!startTime) startTime = currentTime;
-        const elapsedTime = currentTime - startTime;
-
-        const easeOut = Math.pow((elapsedTime / totalTime), 0.5);
-        const currentAngle = easeOut * finalAngle;
-
+    function animateSpin(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        wheelAngle = (elapsed / totalTime) * 360;
         ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+        drawWheel();
         ctx.save();
         ctx.translate(wheelCanvas.width / 2, wheelCanvas.height / 2);
-        ctx.rotate(currentAngle);
-        ctx.translate(-wheelCanvas.width / 2, -wheelCanvas.height / 2);
-        drawWheel();
+        ctx.rotate(wheelAngle * (Math.PI / 180));
         ctx.restore();
-
-        if (elapsedTime < totalTime) {
+        if (elapsed < totalTime) {
             requestAnimationFrame(animateSpin);
         } else {
-            const landedIndex = Math.floor((randomSpin % 360) / (360 / wheelValues.length));
-            const result = wheelValues[landedIndex];
-            commentaryText.textContent = `Landed on ${result}.`;
-            if (result === "Bankrupt") {
-                commentaryText.textContent = "Bankrupt! You lose your turn.";
-                setTimeout(() => resetGame(), 2000);
-            } else {
-                revealLetters(result);
-            }
+            endSpin(finalAngle);
         }
     }
 
     requestAnimationFrame(animateSpin);
+}
+
+function endSpin(finalAngle) {
+    wheelAngle = finalAngle;
+    const sectionAngle = 360 / wheelValues.length;
+    const index = Math.floor((finalAngle % 360) / sectionAngle);
+    const result = wheelValues[index];
+    commentaryText.textContent = `You landed on: ${result}`;
+    if (result === "Bankrupt") {
+        commentaryText.textContent = "You landed on Bankrupt! All your prize money is lost.";
+        prizeMoney = 0;
+        resetGame();
+    } else {
+        revealLetters(result);
+    }
 }
 
 function revealLetters(result) {
@@ -117,68 +120,99 @@ function revealLetters(result) {
     currentGenre = puzzle.genre;
 
     genreElement.textContent = `Genre: ${currentGenre}`;
-    puzzleDisplay = "_".repeat(currentPuzzle.length);
+
+    // Show half of the puzzle word
+    const halfLength = Math.floor(currentPuzzle.length / 2);
+    puzzleDisplay = currentPuzzle.slice(0, halfLength).replace(/[A-Z]/g, '_') + currentPuzzle.slice(halfLength);
     puzzleElement.textContent = puzzleDisplay;
 
-    keyboardContainer.style.display = "block";
     letterGuessInput.disabled = false;
     guessButton.disabled = false;
+    keyboardContainer.style.display = "block";
 
-    // Initialize timer
-    timeLeft = 10;
-    timeLeftDisplay.textContent = timeLeft;
-    timer = setInterval(updateTimer, 1000);
+    timer = setInterval(() => {
+        timeLeft--;
+        timeLeftDisplay.textContent = timeLeft;
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            commentaryText.textContent = "Time's up! Spin the wheel again.";
+            resetGame();
+        }
+    }, 1000);
 }
 
-function updateTimer() {
-    timeLeft--;
-    timeLeftDisplay.textContent = timeLeft;
-    if (timeLeft <= 0) {
-        clearInterval(timer);
-        commentaryText.textContent = "Time's up! Try spinning the wheel again.";
-        resetGame();
+function guessLetter() {
+    const guess = letterGuessInput.value.toUpperCase();
+    letterGuessInput.value = '';
+    letterGuessInput.disabled = true;
+    guessButton.disabled = true;
+    
+    if (guess.length === 1 && /[A-Z]/.test(guess)) {
+        let updatedPuzzleDisplay = '';
+        let correctGuess = false;
+        for (let i = 0; i < currentPuzzle.length; i++) {
+            if (currentPuzzle[i] === guess) {
+                updatedPuzzleDisplay += guess;
+                correctGuess = true;
+            } else {
+                updatedPuzzleDisplay += puzzleDisplay[i];
+            }
+        }
+        puzzleDisplay = updatedPuzzleDisplay;
+        puzzleElement.textContent = puzzleDisplay;
+        if (correctGuess) {
+            prizeMoney += wheelValues[0]; // Update prize money (this needs to be based on the wheel value)
+            commentaryText.textContent = `Correct guess! Prize money: $${prizeMoney}`;
+        } else {
+            commentaryText.textContent = "Incorrect guess. Try again!";
+        }
+    } else {
+        commentaryText.textContent = "Invalid input. Please enter a single letter.";
     }
+
+    // Enable guess again
+    letterGuessInput.disabled = false;
+    guessButton.disabled = false;
+}
+
+function guessWord() {
+    const guess = letterGuessInput.value.toUpperCase();
+    letterGuessInput.value = '';
+    letterGuessInput.disabled = true;
+    guessButton.disabled = true;
+    
+    if (guess.length > 0) {
+        if (guess === currentPuzzle) {
+            prizeMoney += wheelValues[0]; // Update prize money (this needs to be based on the wheel value)
+            commentaryText.textContent = `Correct! You guessed the puzzle. Prize money: $${prizeMoney}`;
+            resetGame();
+        } else {
+            commentaryText.textContent = "Incorrect guess. Try again!";
+        }
+    } else {
+        commentaryText.textContent = "Invalid input. Please enter a valid word.";
+    }
+
+    // Enable guess again
+    letterGuessInput.disabled = false;
+    guessButton.disabled = false;
 }
 
 function resetGame() {
     spinButton.disabled = false;
-    keyboardContainer.style.display = "none";
-    letterGuessInput.value = "";
     letterGuessInput.disabled = true;
     guessButton.disabled = true;
-    commentaryText.textContent = "Spin the wheel to start!";
+    letterGuessInput.value = '';
+    timeLeft = 10;
+    timeLeftDisplay.textContent = timeLeft;
+    clearInterval(timer);
 }
 
-function checkGuess(letter) {
-    let newPuzzleDisplay = "";
-    let found = false;
-    for (let i = 0; i < currentPuzzle.length; i++) {
-        if (currentPuzzle[i].toUpperCase() === letter.toUpperCase()) {
-            newPuzzleDisplay += letter.toUpperCase();
-            found = true;
-        } else {
-            newPuzzleDisplay += puzzleDisplay[i];
-        }
+document.getElementById('spinButton').addEventListener('click', spinWheel);
+document.getElementById('guessButton').addEventListener('click', () => {
+    if (letterGuessInput.value.length === 1) {
+        guessLetter();
+    } else {
+        guessWord();
     }
-    puzzleDisplay = newPuzzleDisplay;
-    puzzleElement.textContent = puzzleDisplay;
-
-    if (!found) {
-        commentaryText.textContent = "Incorrect guess.";
-    } else if (!puzzleDisplay.includes('_')) {
-        commentaryText.textContent = "Congratulations! You've solved the puzzle!";
-        resetGame();
-    }
-}
-
-function handleKeyboardClick(event) {
-    const letter = event.target.textContent;
-    if (letter) {
-        checkGuess(letter);
-    }
-}
-
-spinButton.addEventListener('click', spinWheel);
-guessButton.addEventListener('click', () => checkGuess(letterGuessInput.value));
-keyboard.addEventListener('click', handleKeyboardClick);
-
+});
