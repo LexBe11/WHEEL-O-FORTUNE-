@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wheel of Fortune</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Wheel of Fortune</h1>
+        <div class="wheel-container">
+            <canvas id="wheelCanvas" width="400" height="400"></canvas>
+        </div>
+        <button id="spinButton">Spin the Wheel</button>
+
+        <div class="puzzle-info">
+            <p id="genre">Genre: </p>
+            <p id="puzzle"></p>
+        </div>
+
+        <div class="guess-section">
+            <input type="text" id="letterGuess" maxlength="1" placeholder="Guess a letter" disabled>
+            <button id="guessButton" disabled>Guess</button>
+        </div>
+
+        <div class="timer">
+            <p>Time left: <span id="timeLeft">10</span> seconds</p>
+        </div>
+
+        <div class="commentary">
+            <p id="commentaryText">Spin the wheel to start!</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
